@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Briefcase, ChevronRight, User } from 'lucide-react-native';
+import { Briefcase, ChevronRight, Chrome, Facebook, User } from 'lucide-react-native';
 import { useState } from 'react';
-import { Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +13,7 @@ export default function LoginScreen() {
     const [role, setRole] = useState<Role>('customer');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoadingSocial, setIsLoadingSocial] = useState<string | null>(null);
 
     const handleLogin = () => {
         if (role === 'customer') {
@@ -20,6 +21,14 @@ export default function LoginScreen() {
         } else {
             router.replace('/business/dashboard'); // Placeholder as requested
         }
+    };
+
+    const handleSocialLogin = (provider: string) => {
+        setIsLoadingSocial(provider);
+        setTimeout(() => {
+            setIsLoadingSocial(null);
+            router.replace('/customer/home');
+        }, 1000);
     };
 
     return (
@@ -84,6 +93,45 @@ export default function LoginScreen() {
                         <Text style={styles.buttonText}>Enter App</Text>
                         <ChevronRight size={20} color="#FFFFFF" />
                     </TouchableOpacity>
+
+                    {/* Social Login */}
+                    <View style={styles.dividerContainer}>
+                        <View style={styles.divider} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.divider} />
+                    </View>
+
+                    <View style={styles.socialContainer}>
+                        <TouchableOpacity
+                            style={[styles.socialButton, styles.googleButton]}
+                            onPress={() => handleSocialLogin('google')}
+                            disabled={!!isLoadingSocial}
+                        >
+                            {isLoadingSocial === 'google' ? (
+                                <ActivityIndicator color="#0f172a" />
+                            ) : (
+                                <>
+                                    <Chrome size={20} color="#0f172a" />
+                                    <Text style={styles.socialButtonText}>Continue with Google</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.socialButton, styles.facebookButton]}
+                            onPress={() => handleSocialLogin('facebook')}
+                            disabled={!!isLoadingSocial}
+                        >
+                            {isLoadingSocial === 'facebook' ? (
+                                <ActivityIndicator color="#FFFFFF" />
+                            ) : (
+                                <>
+                                    <Facebook size={20} color="#FFFFFF" />
+                                    <Text style={[styles.socialButtonText, styles.facebookText]}>Continue with Facebook</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </KeyboardAvoidingView>
@@ -190,5 +238,55 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    buttonText: {
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    divider: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#e2e8f0',
+    },
+    dividerText: {
+        marginHorizontal: 16,
+        color: '#94a3b8',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    socialContainer: {
+        gap: 16,
+    },
+    socialButton: {
+        height: 56,
+        borderRadius: 28,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 12,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        backgroundColor: '#ffffff',
+    },
+    googleButton: {
+        // Default styles match Google
+    },
+    facebookButton: {
+        backgroundColor: '#1877F2',
+        borderColor: '#1877F2',
+    },
+    socialButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#0f172a',
+    },
+    facebookText: {
+        color: '#ffffff',
     },
 });

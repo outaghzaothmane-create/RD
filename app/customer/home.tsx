@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { Car, Cross, Dumbbell, MapPin, PawPrint, Search, Sparkles, Utensils } from 'lucide-react-native';
-import { Dimensions, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Car, Cross, Dumbbell, LogOut, MapPin, PawPrint, Search, Sparkles, Utensils } from 'lucide-react-native';
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -14,7 +14,26 @@ const CATEGORIES = [
     { id: '6', name: 'Pets', icon: PawPrint, bg: '#fef08a', color: '#eab308' }, // Pastel Yellow
 ];
 
+import { useRouter } from 'expo-router';
+
 export default function CustomerHome() {
+    const router = useRouter();
+
+    const handleLogout = () => {
+        Alert.alert(
+            "Log Out",
+            "Are you sure you want to log out?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Log Out",
+                    style: "destructive",
+                    onPress: () => router.replace('/auth/login')
+                }
+            ]
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar style="dark" />
@@ -26,9 +45,14 @@ export default function CustomerHome() {
                         <Text style={styles.greeting}>Good Morning,</Text>
                         <Text style={styles.name}>Othmane</Text>
                     </View>
-                    <View style={styles.locationPill}>
-                        <MapPin size={16} color="#1e3a8a" />
-                        <Text style={styles.locationText}>Casablanca, MA</Text>
+                    <View style={styles.headerRight}>
+                        <View style={styles.locationPill}>
+                            <MapPin size={16} color="#1e3a8a" />
+                            <Text style={styles.locationText}>Casablanca, MA</Text>
+                        </View>
+                        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                            <LogOut size={24} color="#ef4444" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -77,8 +101,13 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         marginBottom: 32,
+    },
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
     },
     greeting: {
         fontSize: 16,
@@ -103,6 +132,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         color: '#334155',
+    },
+    logoutButton: {
+        padding: 4,
     },
     searchContainer: {
         marginBottom: 32,
