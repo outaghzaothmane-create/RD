@@ -1,8 +1,13 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { LogBox, View } from 'react-native';
 import 'react-native-reanimated';
 import '../global.css';
+
+// Suppress deprecation warning from external libraries
+LogBox.ignoreLogs([
+  "SafeAreaView has been deprecated",
+]);
 
 export default function RootLayout() {
   return (

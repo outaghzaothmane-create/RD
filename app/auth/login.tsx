@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Briefcase, ChevronRight, Chrome, Facebook, User } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { supabase } from '../../lib/supabase';
 
 const { width } = Dimensions.get('window');
 
@@ -13,22 +14,64 @@ export default function LoginScreen() {
     const [role, setRole] = useState<Role>('customer');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isLoadingSocial, setIsLoadingSocial] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSignUp, setIsSignUp] = useState(false);
 
-    const handleLogin = () => {
-        if (role === 'customer') {
-            router.replace('/customer/home');
-        } else {
-            router.replace('/business/dashboard'); // Placeholder as requested
+    const handleAuth = async () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Please enter both email and password.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            if (isSignUp) {
+                const { error, data } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: email.split('@')[0], // Default name from email
+                            role: role, // Store role in metadata
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data.session) {
+                    router.replace(role === 'customer' ? '/customer/home' : '/business/users'); // Redirect based on role logic (users list for business for now)
+                } else {
+                    Alert.alert(
+                        'Verification Needed',
+                        'We sent you a confirmation email.\n\nSince you are on mobile, please check your email and click the link. If it doesn\'t open the app, try signing up via the Web version (localhost:8081) on your computer.'
+                    );
+                }
+
+            } else {
+                const { error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (error) throw error;
+
+                // Simple redirection for now
+                if (role === 'customer') {
+                    router.replace('/customer/home');
+                } else {
+                    router.replace('/business/users'); // Directing business to user list as requested
+                }
+            }
+        } catch (error: any) {
+            Alert.alert('Authentication Error', error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleSocialLogin = (provider: string) => {
-        setIsLoadingSocial(provider);
-        setTimeout(() => {
-            setIsLoadingSocial(null);
-            router.replace('/customer/home');
-        }, 1000);
+        Alert.alert('Notice', 'Social login coming soon');
     };
 
     return (
@@ -41,6 +84,7 @@ export default function LoginScreen() {
                 <View style={styles.header}>
                     <Text style={styles.subtitle}>Welcome to</Text>
                     <Text style={styles.title}>RDV</Text>
+                    <Text style={styles.modeText}>{isSignUp ? 'Create an account' : 'Log in to continue'}</Text>
                 </View>
 
                 {/* Role Toggle */}
@@ -89,9 +133,24 @@ export default function LoginScreen() {
                         />
                     </View>
 
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Enter App</Text>
-                        <ChevronRight size={20} color="#FFFFFF" />
+                    <TouchableOpacity style={styles.button} onPress={handleAuth} disabled={isLoading}>
+                        {isLoading ? (
+                            <ActivityIndicator color="#FFFFFF" />
+                        ) : (
+                            <>
+                                <Text style={styles.buttonText}>{isSignUp ? 'Sign Up' : 'Log In'}</Text>
+                                <ChevronRight size={20} color="#FFFFFF" />
+                            </>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.toggleButton}
+                        onPress={() => setIsSignUp(!isSignUp)}
+                    >
+                        <Text style={styles.toggleText}>
+                            {isSignUp ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
+                        </Text>
                     </TouchableOpacity>
 
                     {/* Social Login */}
@@ -105,31 +164,17 @@ export default function LoginScreen() {
                         <TouchableOpacity
                             style={[styles.socialButton, styles.googleButton]}
                             onPress={() => handleSocialLogin('google')}
-                            disabled={!!isLoadingSocial}
                         >
-                            {isLoadingSocial === 'google' ? (
-                                <ActivityIndicator color="#0f172a" />
-                            ) : (
-                                <>
-                                    <Chrome size={20} color="#0f172a" />
-                                    <Text style={styles.socialButtonText}>Continue with Google</Text>
-                                </>
-                            )}
+                            <Chrome size={20} color="#0f172a" />
+                            <Text style={styles.socialButtonText}>Continue with Google</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             style={[styles.socialButton, styles.facebookButton]}
                             onPress={() => handleSocialLogin('facebook')}
-                            disabled={!!isLoadingSocial}
                         >
-                            {isLoadingSocial === 'facebook' ? (
-                                <ActivityIndicator color="#FFFFFF" />
-                            ) : (
-                                <>
-                                    <Facebook size={20} color="#FFFFFF" />
-                                    <Text style={[styles.socialButtonText, styles.facebookText]}>Continue with Facebook</Text>
-                                </>
-                            )}
+                            <Facebook size={20} color="#FFFFFF" />
+                            <Text style={[styles.socialButtonText, styles.facebookText]}>Continue with Facebook</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -149,7 +194,7 @@ const styles = StyleSheet.create({
         padding: 24,
     },
     header: {
-        marginBottom: 40,
+        marginBottom: 30,
         alignItems: 'center',
     },
     subtitle: {
@@ -161,16 +206,21 @@ const styles = StyleSheet.create({
         fontSize: 40,
         fontWeight: 'bold',
         color: '#1e3a8a',
+        marginBottom: 8,
+    },
+    modeText: {
+        fontSize: 16,
+        color: '#94a3b8',
     },
     roleContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 40,
+        marginBottom: 30,
         gap: 16,
     },
     roleCard: {
         flex: 1,
-        height: 120,
+        height: 100,
         backgroundColor: '#ffffff',
         borderRadius: 20,
         justifyContent: 'center',
@@ -189,8 +239,8 @@ const styles = StyleSheet.create({
         transform: [{ scale: 1.02 }],
     },
     roleText: {
-        marginTop: 12,
-        fontSize: 16,
+        marginTop: 8,
+        fontSize: 14,
         fontWeight: '600',
         color: '#64748b',
     },
@@ -239,10 +289,14 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    buttonText: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: 'bold',
+    toggleButton: {
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    toggleText: {
+        color: '#1e3a8a',
+        fontSize: 14,
+        fontWeight: '600',
     },
     dividerContainer: {
         flexDirection: 'row',
