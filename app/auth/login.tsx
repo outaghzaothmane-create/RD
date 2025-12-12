@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Briefcase, ChevronRight, Chrome, Facebook, User } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 const { width } = Dimensions.get('window');
@@ -40,7 +40,7 @@ export default function LoginScreen() {
                 if (error) throw error;
 
                 if (data.session) {
-                    router.replace(role === 'customer' ? '/customer/home' : '/business/users'); // Redirect based on role logic (users list for business for now)
+                    router.replace(role === 'customer' ? '/(customer)/home' : '/business/dashboard');
                 } else {
                     Alert.alert(
                         'Verification Needed',
@@ -58,9 +58,9 @@ export default function LoginScreen() {
 
                 // Simple redirection for now
                 if (role === 'customer') {
-                    router.replace('/customer/home');
+                    router.replace('/(customer)/home');
                 } else {
-                    router.replace('/business/users'); // Directing business to user list as requested
+                    router.replace('/business/dashboard');
                 }
             }
         } catch (error: any) {
@@ -80,7 +80,11 @@ export default function LoginScreen() {
             style={styles.container}
         >
             <StatusBar style="dark" />
-            <View style={styles.content}>
+            <ScrollView
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.header}>
                     <Text style={styles.subtitle}>Welcome to</Text>
                     <Text style={styles.title}>RDV</Text>
@@ -178,7 +182,34 @@ export default function LoginScreen() {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+
+                {/* Demo Mode Actions */}
+                <View style={{ marginTop: 24, paddingTop: 24, borderTopWidth: 1, borderTopColor: '#e2e8f0' }}>
+                    <Text style={{ textAlign: 'center', color: '#64748b', marginBottom: 12, fontSize: 13, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        Developer Options
+                    </Text>
+                    <View style={{ gap: 12 }}>
+                        <TouchableOpacity
+                            style={[styles.socialButton, { backgroundColor: '#f1f5f9', borderStyle: 'dashed' }]}
+                            onPress={() => router.replace('/(customer)/home')}
+                        >
+                            <User size={20} color="#475569" />
+                            <Text style={[styles.socialButtonText, { color: '#475569' }]}>Explore as Guest (Customer)</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.socialButton, { backgroundColor: '#f1f5f9', borderStyle: 'dashed' }]}
+                            onPress={async () => {
+                                await supabase.auth.signOut();
+                                router.replace('/business/dashboard');
+                            }}
+                        >
+                            <Briefcase size={20} color="#475569" />
+                            <Text style={[styles.socialButtonText, { color: '#475569' }]}>Demo Business Dashboard</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }

@@ -15,6 +15,10 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(customer)" />
+        <Stack.Screen name="category/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="business/dashboard" options={{ headerShown: false }} />
+        <Stack.Screen name="business/profile" options={{ headerShown: false }} />
+        <Stack.Screen name="business/[id]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </View>

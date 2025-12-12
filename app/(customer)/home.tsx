@@ -1,17 +1,49 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { MapPin, Search } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import { Dimensions, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BUSINESSES, CATEGORIES } from '../../constants/data';
+import { supabase } from '../../lib/supabase';
 
 const { width } = Dimensions.get('window');
 
 export default function CustomerHomeScreen() {
     const router = useRouter();
+    const [businesses, setBusinesses] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetchBusinesses();
+    }, []);
+
+    const fetchBusinesses = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('businesses')
+                .select('*');
+
+            if (error) {
+                console.log('Supabase error (using mock data):', error.message);
+                setBusinesses(BUSINESSES);
+            } else if (data && data.length > 0) {
+                setBusinesses(data);
+            } else {
+                setBusinesses(BUSINESSES);
+            }
+        } catch (e) {
+            console.log('Error fetching, using fallback:', e);
+            setBusinesses(BUSINESSES);
+        }
+    };
 
     const handleCategoryPress = (categoryId: string) => {
-        router.push(`/(customer)/category/${categoryId}`);
+        console.log('Navigating to category:', categoryId);
+        try {
+            router.push(`/category/${categoryId}`);
+        } catch (e) {
+            console.error('Navigation error:', e);
+        }
     };
 
     return (
@@ -60,46 +92,47 @@ export default function CustomerHomeScreen() {
                                     entering={FadeInDown.delay(300 + index * 100).springify()}
                                     className={`${isLarge ? 'w-full mb-4' : 'w-[48%] mb-4'} `}
                                 >
-                                    <TouchableOpacity
-                                        className={`
-rounded - 3xl p - 5 bg - white shadow - sm border border - slate - 100
-                                            ${isLarge ? 'h-48' : 'h-40 justify-between'}
-overflow - hidden relative
-                                        `}
-                                        activeOpacity={0.9}
-                                        onPress={() => handleCategoryPress(category.id)}
-                                    >
-                                        {/* Background Image for Large Card */}
-                                        {isLarge && category.image && (
-                                            <>
-                                                <Image
-                                                    source={{ uri: category.image }}
-                                                    className="absolute inset-0 w-full h-full opacity-20"
-                                                    resizeMode="cover"
-                                                />
-                                                <View className="absolute inset-0 bg-gradient-to-t from-white/90 to-transparent" />
-                                            </>
-                                        )}
+                                    <Link href={`/category/${category.id}`} asChild>
+                                        <TouchableOpacity
+                                            className={`
+                                                rounded-3xl p-5 bg-white shadow-sm border border-slate-100
+                                                ${isLarge ? 'h-48' : 'h-40 justify-between'}
+                                                overflow-hidden relative
+                                            `}
+                                            activeOpacity={0.9}
+                                        >
+                                            {/* Background Image for Large Card */}
+                                            {isLarge && category.image && (
+                                                <>
+                                                    <Image
+                                                        source={{ uri: category.image }}
+                                                        className="absolute inset-0 w-full h-full opacity-20"
+                                                        resizeMode="cover"
+                                                    />
+                                                    <View className="absolute inset-0 bg-gradient-to-t from-white/90 to-transparent" />
+                                                </>
+                                            )}
 
-                                        <View className="flex-1 justify-between relative z-10">
-                                            <View className={`h - 12 w - 12 rounded - full items - center justify - center bg - slate - 50 border border - slate - 100`}>
-                                                <category.icon size={22} color={category.iconColor} />
+                                            <View className="flex-1 justify-between relative z-10">
+                                                <View className={`h-12 w-12 rounded-full items-center justify-center bg-slate-50 border border-slate-100`}>
+                                                    <category.icon size={22} color={category.iconColor} />
+                                                </View>
+
+                                                <View>
+                                                    <Text className="text-lg font-bold text-slate-900 tracking-tight">{category.name}</Text>
+                                                    <Text className="text-slate-400 text-xs font-medium">128 Places</Text>
+                                                </View>
                                             </View>
 
-                                            <View>
-                                                <Text className="text-lg font-bold text-slate-900 tracking-tight">{category.name}</Text>
-                                                <Text className="text-slate-400 text-xs font-medium">128 Places</Text>
+                                            {/* Decorative Arrow */}
+                                            <View className="absolute top-5 right-5 z-10">
+                                                <View className="h-8 w-8 rounded-full bg-slate-50 items-center justify-center">
+                                                    <Text className="text-slate-300 transform -rotate-45 text-xs">➜</Text>
+                                                </View>
                                             </View>
-                                        </View>
 
-                                        {/* Decorative Arrow */}
-                                        <View className="absolute top-5 right-5 z-10">
-                                            <View className="h-8 w-8 rounded-full bg-slate-50 items-center justify-center">
-                                                <Text className="text-slate-300 transform -rotate-45 text-xs">➜</Text>
-                                            </View>
-                                        </View>
-
-                                    </TouchableOpacity>
+                                        </TouchableOpacity>
+                                    </Link>
                                 </Animated.View>
                             )
                         })}
@@ -114,33 +147,37 @@ overflow - hidden relative
                     </View>
 
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-6 px-6 pb-20">
-                        {BUSINESSES.map((business, index) => (
+                        {businesses.map((business, index) => (
                             <Animated.View
                                 key={business.id}
                                 entering={FadeInDown.delay(600 + index * 100).springify()}
                                 className="mr-5 w-72 bg-white rounded-3xl shadow-md shadow-slate-200/50 border border-slate-100"
                             >
-                                <View className="h-40 bg-slate-200 rounded-t-3xl relative overflow-hidden">
-                                    <Image
-                                        source={{ uri: business.image }}
-                                        className="h-full w-full"
-                                        resizeMode="cover"
-                                    />
-                                    <View className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-lg shadow-sm flex-row items-center">
-                                        <Text className="text-[10px] font-bold text-slate-900">⭐ {business.rating}</Text>
-                                    </View>
-                                </View>
-                                <View className="p-4">
-                                    <Text className="font-bold text-base text-slate-900 tracking-tight mb-1" numberOfLines={1}>{business.name}</Text>
-                                    <View className="flex-row items-center mb-2">
-                                        <Text className="text-slate-500 text-xs font-medium">{business.type}</Text>
-                                    </View>
+                                <Link href={`/business/${business.id}`} asChild>
+                                    <TouchableOpacity activeOpacity={0.9}>
+                                        <View className="h-40 bg-slate-200 rounded-t-3xl relative overflow-hidden">
+                                            <Image
+                                                source={{ uri: business.image_url || 'https://via.placeholder.com/400' }}
+                                                className="h-full w-full"
+                                                resizeMode="cover"
+                                            />
+                                            <View className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-lg shadow-sm flex-row items-center">
+                                                <Text className="text-[10px] font-bold text-slate-900">⭐ {business.rating || 'N/A'}</Text>
+                                            </View>
+                                        </View>
+                                        <View className="p-4">
+                                            <Text className="font-bold text-base text-slate-900 tracking-tight mb-1" numberOfLines={1}>{business.name}</Text>
+                                            <View className="flex-row items-center mb-2">
+                                                <Text className="text-slate-500 text-xs font-medium capitalize">{business.category} • {business.price_range}</Text>
+                                            </View>
 
-                                    <View className="flex-row items-center">
-                                        <MapPin size={12} color="#94a3b8" />
-                                        <Text className="text-slate-400 text-[10px] ml-1">1.2km away</Text>
-                                    </View>
-                                </View>
+                                            <View className="flex-row items-center">
+                                                <MapPin size={12} color="#94a3b8" />
+                                                <Text className="text-slate-400 text-[10px] ml-1" numberOfLines={1}>{business.address || 'Location N/A'}</Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                </Link>
                             </Animated.View>
                         ))}
                     </ScrollView>
