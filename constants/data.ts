@@ -49,7 +49,7 @@ export const CATEGORIES = [
 export const BUSINESSES = [
     // Dining
     {
-        id: '1',
+        id: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
         category: 'dining',
         name: 'La Pasta House',
         type: 'Italian • $$',
@@ -59,10 +59,14 @@ export const BUSINESSES = [
         address: '123 Olive Garden Way, Foodville',
         phone: '(555) 123-4567',
         about: 'La Pasta House has been serving the community for over 20 years. Our chefs use only the freshest ingredients imported directly from Italy.',
-        coordinates: { lat: 37.7749, lng: -122.4194 }
+        coordinates: { lat: 37.7749, lng: -122.4194 },
+        services: [
+            { name: 'Dinner Reservation', duration: 90, price: 0 },
+            { name: 'Private Event', duration: 180, price: 500 }
+        ]
     },
     {
-        id: '2',
+        id: 'b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e',
         category: 'dining',
         name: 'Sushi Zen',
         type: 'Japanese • $$$',
@@ -76,7 +80,7 @@ export const BUSINESSES = [
     },
     // Healthcare
     {
-        id: '3',
+        id: 'c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f',
         category: 'healthcare',
         name: 'City Dental',
         type: 'Dentist',
@@ -86,10 +90,15 @@ export const BUSINESSES = [
         address: '789 Smile Blvd, Health City',
         phone: '(555) 222-3333',
         about: 'At City Dental, we prioritize your comfort and dental health. utilizing state-of-the-art technology for pain-free treatments.',
-        coordinates: { lat: 37.7949, lng: -122.4394 }
+        coordinates: { lat: 37.7949, lng: -122.4394 },
+        services: [
+            { name: 'Checkup & Cleaning', duration: 60, price: 120 },
+            { name: 'Teeth Whitening', duration: 90, price: 300 },
+            { name: 'Filling', duration: 45, price: 180 }
+        ]
     },
     {
-        id: '4',
+        id: 'd4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a',
         category: 'healthcare',
         name: 'Dr. Sarah Smith',
         type: 'General Practitioner',
@@ -99,10 +108,14 @@ export const BUSINESSES = [
         address: '101 Healing Way, Wellness Park',
         phone: '(555) 444-5555',
         about: 'Dr. Smith has over 15 years of experience in internal medicine. She believes in a holistic approach to patient health.',
-        coordinates: { lat: 37.8049, lng: -122.4494 }
+        coordinates: { lat: 37.8049, lng: -122.4494 },
+        services: [
+            { name: 'General Consultation', duration: 30, price: 100 },
+            { name: 'Physical Exam', duration: 60, price: 200 }
+        ]
     },
     {
-        id: '13',
+        id: 'e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b',
         category: 'healthcare',
         name: 'Dr. James Wilson',
         type: 'Cardiologist',
@@ -115,7 +128,7 @@ export const BUSINESSES = [
         coordinates: { lat: 37.8149, lng: -122.4594 }
     },
     {
-        id: '14',
+        id: 'f6a7b8c9-d0e1-4f5a-3b4c-5d6e7f8a9b0c',
         category: 'healthcare',
         name: 'Dr. Emily Chen',
         type: 'Pediatrician',
@@ -129,7 +142,7 @@ export const BUSINESSES = [
     },
     // Beauty
     {
-        id: '5',
+        id: 'a7b8c9d0-e1f2-4a5b-4c5d-6e7f8a9b0c1d',
         category: 'beauty',
         name: 'Glow Spa',
         type: 'Massage & Facial',
@@ -139,10 +152,15 @@ export const BUSINESSES = [
         address: '555 Serenity Lane, Relaxville',
         phone: '(555) 111-2222',
         about: 'Glow Spa offers a sanctuary from the hustle and bustle of city life. Enjoy our signature massages and organic facials.',
-        coordinates: { lat: 37.8349, lng: -122.4794 }
+        coordinates: { lat: 37.8349, lng: -122.4794 },
+        services: [
+            { name: 'Swedish Massage', duration: 60, price: 120 },
+            { name: 'Deep Tissue Massage', duration: 90, price: 150 },
+            { name: 'Facial Treatment', duration: 75, price: 130 }
+        ]
     },
     {
-        id: '6',
+        id: 'b8c9d0e1-f2a3-4b5c-5d6e-7f8a9b0c1d2e',
         category: 'beauty',
         name: 'Luxe Nails',
         type: 'Nail Salon',
@@ -156,7 +174,7 @@ export const BUSINESSES = [
     },
     // Fitness
     {
-        id: '7',
+        id: 'c9d0e1f2-a3b4-4c5d-6e7f-8a9b0c1d2e3f',
         category: 'fitness',
         name: 'Iron Gym',
         type: '24/7 Gym',
@@ -169,7 +187,7 @@ export const BUSINESSES = [
         coordinates: { lat: 37.8549, lng: -122.4994 }
     },
     {
-        id: '8',
+        id: 'd0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a',
         category: 'fitness',
         name: 'Yoga Flow',
         type: 'Yoga Studio',
@@ -183,7 +201,7 @@ export const BUSINESSES = [
     },
     // Auto
     {
-        id: '9',
+        id: 'e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b',
         category: 'auto',
         name: 'Speedy Fix',
         type: 'Auto Repair',
@@ -196,7 +214,7 @@ export const BUSINESSES = [
         coordinates: { lat: 37.8749, lng: -122.5194 }
     },
     {
-        id: '10',
+        id: 'f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c',
         category: 'auto',
         name: 'Pro Detailers',
         type: 'Car Wash',
@@ -210,7 +228,7 @@ export const BUSINESSES = [
     },
     // Pets
     {
-        id: '11',
+        id: 'a3b4c5d6-e7f8-4a9b-0c1d-2e3f4a5b6c7d',
         category: 'pets',
         name: 'Happy Paws',
         type: 'Veterinary Clinic',
@@ -223,7 +241,7 @@ export const BUSINESSES = [
         coordinates: { lat: 37.8949, lng: -122.5394 }
     },
     {
-        id: '12',
+        id: 'b4c5d6e7-f8a9-4b0c-1d2e-3f4a5b6c7d8e',
         category: 'pets',
         name: 'Pet Resort',
         type: 'Boarding',
